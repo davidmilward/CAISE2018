@@ -113,7 +113,7 @@
 	%
 	\section{Introduction}
 	
-	Large organizations tend to have large numbers of data flows within them, some are real-time between different applications or machine actors, which we term \emph{primary data flows} and some are reports, documents and forms which are sent between human actors, these we term \emph{secondary data flows}. Very often business process consists of data flows being transfered and stored on multiple systems and applications, with very little ability to trace or classify what data is being handled.
+	In computer programming software re-use is a well researched topic of interest, and various paradigms, such as aspect-oriented programming and feature modelling have been developed to promote efficient software reuse. Data Analysis needs well defined data to be efficient, and data definition is dependent upon having good abstractions or models with which to define that data. Large organizations tend to have large numbers of data flows within them, some are real-time between different applications or machine actors, which we term \emph{primary data flows} and some are reports, documents and forms which are sent between human actors, these we term \emph{secondary data flows}. Very often business process consists of data flows being transfered and stored on multiple systems and applications, with very little ability to trace or classify what data is being handled.
 	
 	Abstractions are used in computer science as well as many other disciplines to reason about complex systems, and when systems are designed or reasoned about an abstraction or model will often be used.  Most object oriented software applications are designed with some regard to modelling the key aspects of the application using models and notations such as UML or Ecore.  In the same way most database oriented software applications are constructed using the entity-relationship models. Linked data systems are built using RDF models, and XML dataflows are normally designed using XML Schema. However dataflows can be in many different formats, unstructured text, comma-separated varible files, XML files, binary data standards such as ASTERIX (which is used by Eurocontrol and thus by all air traffic in Europe) and Excel spreadsheets. In both the healthcare and fintech organizations we have looked at Excel is by far the most popular application and format for sending information within the organization and for defining other data formats.
 	
@@ -183,7 +183,12 @@
 	
 	Secondly we are referring to each layer as being an \emph{abstraction} of the previous layer, and therefore having less concrete description, this is the notion built into the idea of MOF layers. 
 	
-	
+	\begin{figure}
+		\centering
+		\includegraphics[scale=0.11]{figures/MMLDiagram}
+		\caption{Metamodel Overview}
+		\label{fig:mmoverview}
+	\end{figure}
 	
 	
 	
@@ -196,8 +201,9 @@
 	We may also wish to group \emph{dataModels}, so that we can define a \emph{dataDomain}, which will include perhaps several different models which deal with the same set of concepts. Again we are formalising a set of concepts, at the M2 level of MOF, so that we can apply properties, which we call metadata extensions, across a \emph{dataDomain}. We may for instance wish to formalise a terminology across several different datasets which deal with cancer data, for instance the NHS Data Dictionary, FHIR, COSD and the Genomics England Cancer Model. This is best curated and managed at this level of abstraction, it can then be used at the M1 and M0 level. 
 	
 	\subsubsection{Core Elements of MML}
-	\paragraph{generalElement}
 	
+	\paragraph{DataItem}
+	All elements in this model are DataItems, and the DataItem itself is an abstract class which acts as a means of ensuring all items in the metamodel have some key attributes, firstly that they have a unique id and version, secondly that they have a metadata extension added to them, and lastly that they can be related to other DataItems, either as a straightforward link or as a rule. We are representing a DataRule as DataReference with a constraint added to it. At the moment we have assumed that the constraints will be defined in OCL terms, since the underlying Ecore framework is able to manage OCL constraints.
 	
 	\paragraph{DataModel}
 	A DataModel is versioning and grouping mechanism for one data-set, it might for instance be a particular database, or a particular XSD Schema which is used in a particular domain, however it allows us to group and version a related set of DataClasses. A DataModel can contain many DataElements, and many DataTypes. A DataModel contains one or more DataItems, which may be implemented as DataClasses, DataElements, DataTypes or EnumerationValues. As all DataItems are also AbstractItems, they can have Tags, which link them to entities outside that DataModel using URI's, and they can have Relationships which are two-way associations with other AbstractItems. DataConstraints are attached to each DataModel and are applicable within that DataModel.
@@ -212,9 +218,11 @@
 	A DataType is a basic type or value representation for a particular DataItem, it represents the kind of unit of the DataItem, for instance for it could be a set of values defined by a enumerations, or it could be a number represented by an integer or double DataType. The notion of DataType here is very similar to that which prevails in the Computer Science world and is defined by Pierce  ~\cite{Pierce} as follows:
 	\textbf{A type system is a tractable synthetic method for proving the absence of certain program behaviours by classifying phrases according to the kinds of values they compute}. This corresponds closely, and may be seen as a refined of, the ISO11179 definition of a value domain, which is \textbf{A “data value” is an element of a value domain. “Enumerated value domain” is a value domain that is specified by a list of all its permissible values. a value domain is the set of possible data values of an attribute. } Whilst these definitions differ, for the purposes of developing a physical model for the ISO11179 notion of value domain, the idea of type, as used within UML and Ecore, suffices.
 	
-	We have defined three different DataTypes all deriving from a parent DataType which itself is derived from the CatalogueElement entity or class. These are a \emph{Primitive} which represents a single primitive value such as a boolean or an integer; and a primitive can also hold information relating to a unit, that is to say a speed may be recorded as an integer, but that DataType may be modified by being an standard unit of measurement. Hence we include two attributes on the Primitive Class to capture these differences. A DataType might be a \emph{ReferenceType}, which is needed if a DataClass is present inside another DataClass, effectively acting as a DataItem, it's type is then the type of the DataClass concerned. 
+	We have defined three different types of DataType all deriving from a parent DataType which itself is derived from the CatalogueElement entity or class. These are a \emph{Primitive} which represents a single primitive value such as a boolean or an integer; and a primitive can also hold information relating to a unit, that is to say a speed may be recorded as an integer, but that DataType may be modified by being an standard unit of measurement. Hence we include two attributes on the Primitive Class to capture these differences. A DataType might be a \emph{ReferenceType}, which is needed if a DataClass is present inside another DataClass, effectively acting as a DataItem, it's type is then the type of the DataClass concerned. 
 	
 	The last kind of DataType is the \emph{Enumeration} which is a multiple set of ordered key-value pairs, the key-value pairs are part of the \emph{Enum} entity which in turn is derived from the core \emph{CatalogueElement} entity. This enables it to have tags and/or constraints attached to it, which allows terminologies and vocabularies from ontologies to be imported into the language.
+	
+	Within each DataType we allow a rule to be defined, so that we can have a DataType which is a reference type, based on an existing DataType, but with a rule added to it which in effect strengthens its type. For instance we may have a DataType based on a string, which is defined as an array of characters, if A is a string, then B maybe a string with a regular expression, limiting its instance to a particular sequence of character, such as /emph{Mr, Mrs, Ms, Dr}. We may refer to B by name - \emph{title} 
 	
 	\subsection{Identification and Versioning}
 	The language uses a notion of identifying artefacts using a \emph{package} namespace notation, so that a DataElement will be part of a DataClass, which is part of a DataModel, which in turn will have unique URI. As an example let's suppose we have a dataset for lung cancer model being curated at oxford, we may use a generic URI for the Oxford Lung Cancer Dataset, something like \emph{http://oxfordcancer.org/lungvx}. This namespace uniquely identifies the lung cancer data model being curated by people using the URI of \emph{http://oxfordcancer.org} as their main identifier. The word \emph{lung} then uniquely identifies the \emph{lung} model, this in turn will contain other DataItems which are DataClasses, DataElement, DataTypes and so forth, each identified by a name, a version number and an artefact type.
@@ -258,77 +266,28 @@
 	
 	
 	
-	\subsubsection{MML Grammar}
 	
-	The following section shows the code used to define the XText grammar, which is used to generate an Ecore meta-model, which in turn is used to define the different datasets used in this project.
-	\begin{small}
-		\begin{verbatim}
-		grammar uk.ac.ox.cs.MML with 
-		org.eclipse.xtext.common.Terminals
-		
-		generate mML "http://www.ac.uk/ox/cs/MML"
-		
-		MML :
-		(elements += AbstractItem)*
-		;
-		
-		
-		DataModel:
-		'DataModel' name = QualifiedName '{'
-		(elements += AbstractItem)*
-		'}'
-		;
-		
-		AbstractItem:
-		DataModel | DataClass | DataType | Import
-		;
-		
-		QualifiedName:
-		ID('.' ID)*
-		;
-		
-		Import:
-		'import' importedNamespace = 
-		QualifiedNameWithWildcard
-		;
-		
-		QualifiedNameWithWildcard:
-		QualifiedName '.*'?
-		;
-		
-		
-		DataType:
-		'DataType' name = ID
-		;
-		
-		ContainerElement:
-		DataClass| DataElement
-		;
-		
-		DataClass:
-		'DataClass' name = ID ('extends' superType =
-		[DataClass])? '{'
-		(dataelements += ContainerElement)*
-		'}'
-		;
-		
-		DataElement:
-		'DataElement' name = ID ':' type =  
-		[DataType|QualifiedName]
-		;
-		\end{verbatim}
-	\end{small}
 	
 	
 	
 	\subsection{Language Properties}
 	
+	\begin{figure}
+		\centering
+		\includegraphics[scale=0.62]{figures/DatasetRefinement}
+		\caption{Model Refinement and Usage}
+		\label{fig:mmrefine}
+	\end{figure}
+	
 	
 	\section{Application}
+	MML allows the building of datasets from different sources, which in turn allows datasets to comply with different standards. This allows data managers to choose data definitions which are broad enough to comply with different standards where there is a difference between two different standards. Some reasoning can be applied at a meta-level, which enables the instance data to be collected in a desired manner.
+	
+	
 	
 	
 	\subsection{Health Service Example}
-	\subsection{FinTech Example}
+ 
 	
 	
 	\section{Conclusion}
