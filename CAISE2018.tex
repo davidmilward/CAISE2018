@@ -22,6 +22,8 @@
 \newtheorem{observation}{Observation}
 \usepackage{zed}
 \usepackage{algpseudocode}
+\usepackage{hyperref}
+ 
 %\usepackage[pdftex]{hyperref}
 \DeclareGraphicsExtensions{.pdf,.png,.jpg}
 
@@ -86,7 +88,7 @@
 
 %\newtheorem{definition}{Definition}
 \newcommand{\Lagr}{\mathcal{L}}
-
+ 
 %
 \begin{document}
 %
@@ -128,17 +130,35 @@ In this work we have taken the core elements in ISO11179, and built an Ecore mod
 
 Much of the patient data collected in the U.K.'s National Health Service (NHS) remains unaccessible for medical research. This is because it is held in a variety of commercial software systems which have been built at different times, and have been based on different standards. Reporting consists largely of data being sent in excel spreadsheets, csv files or xml files.  There are over 130 different data models and standards (see TRUD \cite{TRUD}) currently being used in the NHS at present, and new ones are being introduced and implemented each year. At present the UK NHS is preparing to implement SNOMED across all systems by 2020, this has largely been achieved in primary care, but has hardly been started in secondary care systems. The main reason for the success in primary care is down to the fact that there are 5 main vendors of primary care systems, all of whom regard the UK primary care market as a major part of their business, and hence all of them have agreed to implement the standard.  
 
-However in secondary care the larger hospital trusts will be running 2-300 different systems, many of these from vendors with bases outside the UK, who have little incentive to make major changes to systems which they are selling in a minority marketplace. Efforts by the core standards bodies within the NHS to impose standards on hospital truests have met with partial success. As well as the technical challenges, there are also legal issues imposed by the Health and Social Care Act 2012, NHS Act 2006, the Health and Social Care Act 2012, the Data Protection Act 1998, the Human Rights Act, and the shortly to be introduced General Data Protection Regulations.  The complexity of these different acts results can result in data on a patients other conditions (say liver disease) being withheld from Emergency Care Clinicians when they are performing for instance emergency heart surgery. Whilst such legislation clearly is intended to protect the patient's privacy, it can have unforseen side effects not only on emergency medical care, but also on the ability and ease in which medical data can be aggregated for further research purposes.
+However in secondary care the larger hospital trusts will be running 2-300 different systems, many of these from vendors with bases outside the UK, who have little incentive to make major changes to systems which they are selling in a minority marketplace. Efforts by the core standards bodies within the NHS to impose standards on hospital trusts have met with partial success. As well as the technical challenges, there are also legal issues imposed by the Health and Social Care Act 2012, NHS Act 2006, the Health and Social Care Act 2012, the Data Protection Act 1998, the Human Rights Act, and the shortly to be introduced General Data Protection Regulations.  The complexity of these different acts results can result in data on a patients other conditions (say liver disease) being withheld from Emergency Care Clinicians when they are performing for instance emergency heart surgery. Whilst such legislation clearly is intended to protect the patient's privacy, it can have unforseen side effects not only on emergency medical care, but also on the ability and ease in which medical data can be aggregated for further research purposes.
 
 Medical data when aggregated is generally stored in relational databases, excel spreadsheets or unstructured pdf and word documents, and querying this data can be very difficult in all these cases. Reports are sent through to the NHS from local hospital trusts to satisfy reporting requirements in hundreds of different spread-sheet formats, with no real verification on the datasets contained. There is no question that the information \emph{could} be valuable for research, however extracting data for analysis is very often too costly to perform.  When datasets are prepared for analysis it is often discovered that the structure of the data when stored may not be the same as the structure it is required in now, and there maybe no exact record of how the data was originally recorded. For instance gender may be stored in one system as an enumeration of \emph{yes or no} and in another system as \emph{yes, no, unknown}, if we write a query assuming the former then we may arrive at incorrect conclusions if the data is actually collect in the format of the latter, but assumed to be conforming to the former. 
 
-The work described here started with the development of an ISO11179 for the CancerGrid project~\cite{davi14}, in this work an ISO11179 metadata registry was built to curate datasets for clinical trials data, and to develop clinical trials software~\cite{davi12, Abler2011}. This work was informed by previous initiatives to implement an ISO11179-compliant registry in the CaBIG initiative, which was used to generate code for web service stubs.
+The work described here started with the development of an ISO11179 for the CancerGrid project~\cite{davi14}, in this work an ISO11179 metadata registry was built to curate datasets for clinical trials data, and to develop clinical trials software~\cite{davi12}. This work was informed by previous initiatives to implement an ISO11179-compliant registry in the CaBIG initiative, which was used to generate code for web service stubs. One of the problems which emerged from this work was that the ISO11179 standard does not separate abstraction levels for the models and model elements it defines.
+
+When data is aggregated and stored in data warehouses or \emph{data lakes}, it is very often stored in the form in which it was originally collected. The problem with this is twofold, it is hardly ever in a form suitable for data analysis, and if it does adhere to a standard it may not be easy to find out exactly which standard. As mentioned earlier the NHS has at least 130 different data standards in use, and ones, such as the NHS Data Dictionary, may have changed 20 or more in the last 15 years. The abstractions used in ISO11179 provide a way of documenting the semantics associated with individual data elements, but there are no suitable abstractions for managing groups of data elements, such as can be easily applied to several different medical datasets, lets say FHIR and SNOMED.
+ 
+Abstraction is used in mathematics to simplify problems, and arrive at a realistically computable solution for a specific problem. Different abstractions are used for different problems, sometimes these certain abstractions can be applied in many different problem domains. 
+
+
 
 \section{Language}
 
-This metamodelling langauge (MML) is constructed for data interoperability and it has a metamodel \textbf{$M_2$} defined at level M2 of MOF. The language can be designated by $\Lagr_{m2}$ and a meta-model ML is formally defined by this language $\Lagr_{m2}$.
+In Model Driven Engineering abstractions are used to define the way models are structured at different abstraction levels, and by applying these concepts to models of datasets we are able to define a metamodel or language which is capable of describing nearly all such datasets. We could arguably do this by using Ecore as it stands, however we are working on the principle, often attributed to Einstein, that one should make \emph{everything as simple as possible but not simpler}. This language for data management is aimed at Information Systems, which are simply storing and handling data. We are not looking at having the language capture \emph{behaviour}, it is a \emph{structural meta-language} for describing data items.
 
-It is aimed at Information Systems, which are simply storing and handling data, so at present we are not looking at having the language capture \emph{behaviour}, it is simply a \emph{structural meta-language} for describing data items. 
+Ulrich Frank defines~\cite{Frank2013} a set of requirements for building a domain specific modelling language, which we have attempted to follow in designing this metamodelling language for datasets. In short they can be paraphrased and listed as follows:
+\begin{itemize}
+	\item A metamodelling language should be supplemented by a metamodelling environment that supports the realization of model editors.
+	\item The language concepts used on different levels of abstraction should be clearly separated
+	\item The graphic notation should correspond to prevalent graphical notations
+	\item The concepts should be supplemented by a language for specifying constraints
+	\item The concepts should allow for a clear mapping to concepts used for software development
+	\item The language should allow for distinguishing between different levels of abstraction
+	\item The language should provide concepts for representing instances
+	\item The language should account for dissemination and standardization
+\end{itemize}
+
+This metamodelling langauge (MML) has a metamodel \textbf{$M_2$} defined at level M2 of MOF. The language can be designated by $\Lagr_{m2}$ and a meta-model ML is formally defined by this language $\Lagr_{m2}$.
 
 Most information systems use a variety of mechanisms to store data, from text files to relational databases, all of which can be modelled at the M1 level.  In fact we can say that the M1 languages which model the data can be designated by $\Lagr_{m1}$, each one defining a Model which we can designate by MI = (mi\_1, mi\_2, ...., mi\_n).  MI being the collection of Models that \emph{conform to} or \emph{implement} MML.  
 
@@ -148,7 +168,7 @@ In defining MML we take the notion of a \emph{dataElement} as the core entity in
 
 The word or stem \emph{abstract} is used in several different ways in this discussion, and the following brief discussion highlights the different usages.  
 
-Firstly we can have an abstract entity which is the implementation of an EClass at the M3 level, that is to say a representation of in our language of an EClass which cannot be implemented at the M2 level. It can be \emph{sub-typed} by another EClass at the M2 level and this \emph{sub-class} can be implemented. We use this mechanism to specify both AbstractItem and DataItem as \emph{abstract} entities in our language, however we are not defining an \emph{abstraction} mechanism for MML per se. Later on we will define an inheritance or rather a simple sub-typeing mechanism which can be used for \emph{templating} at the M1 model level. 
+Firstly we can have an abstract entity which is the implementation of an EClass at the M3 level, that is to say a representation of in our language of an EClass which cannot be implemented at the M2 level. It can be \emph{sub-typed} by another EClass at the M2 level and this \emph{sub-class} can be implemented. We use this mechanism to specify both AbstractItem and DataItem as \emph{abstract} entities in our language, however we are not defining an \emph{abstraction} mechanism for MML per se. Later on we will define an inheritance or rather a simple sub-typing mechanism which can be used for \emph{templating} at the M1 model level. 
 
 Secondly we are referring to each layer as being an \emph{abstraction} of the previous layer, and therefore having less concrete description, this is the notion built into the idea of MOF layers. 
 
@@ -246,8 +266,8 @@ The following section shows the code used to define the XText grammar, which is 
 
 
 
-%\bibliographystyle{IEEEtran}
-\bibliography{CAISE2018}
+\bibliographystyle{plain}
+\bibliography{CAISE2bib}
 
 
 \end{document}
