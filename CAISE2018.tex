@@ -257,13 +257,13 @@
 				BasedOn  & \(A \Rightarrow B \)   & \\
 				Mandatory.  &  \(C \Rightarrow D\)  & \\
 				Alternate  & \(  A \Rightarrow (B_1 \land (\neg B_2 \land ... \land \neg B_n) \lor (B_2 \land (\neg B_1 \land ... \land \neg B_n ) \lor ...  \) & \\[2pt]
-			%%	Alternative  & $ P \Rightarrow p_1 \and \not q_2 $ & \\[2pt]
+				Or  & $ P \Rightarrow Q_1 \lor  Q_2 $ & \\[2pt]
 				\hline
 			\end{tabular}
 		\end{center}
 	\end{table}
 	
-	
+	These relationships are then used in building groups of DataClasses and DataElements which can be constrained by \emph{DataRules}. Rules can be applied on any DataItem, and are implemented as relationship, so a DataModel can have a rule which can apply to all DataElements, or indeed all DataItems, such as 
 	
 	
 	
@@ -281,13 +281,15 @@
 	
 	
 	\section{Application}
-	MML allows the building of datasets from different sources, which in turn allows datasets to comply with different standards. This allows data managers to choose data definitions which are broad enough to comply with different standards where there is a difference between two different standards. Some reasoning can be applied at a meta-level, which enables the instance data to be collected in a desired manner.
+	MML allows the building of datasets from different sources, which in turn allows datasets to comply with different standards. This allows data managers to choose data definitions which are broad enough to comply with different standards where there is a difference between two different standards. Some reasoning can be applied at a meta-level, which enables the instance data to be collected in a desired manner. 
 	
+	The core MML model, as discussed here, has been applied in two instances, firstly as an XText grammar to generate a model curation application which uses the Eclipse toolkit to provided viewing and editing capability, and secondly as a repository for datasets or models, allowing models to be selected and mixed using a web interface. The development of an XText grammar has enabled the meta-model to be translated into Ecore and this has allowed the development of transformations using the Atlas Transformation Language (ATL).
 	
+	Figure \ref{fig:mmrefine} illustrates how the Cancer Outcomes and Services Dataset is stored in the models catalogue, as a model in the M1 MOF layer, and also illustrates its relationship to an implementation model of COSD using XML Schema. We view this implementation as a \emph{refinement} of the core model, and it maybe that there are multiple implementation models of a single COSD model.
 	
 	
 	\subsection{Health Service Example}
- 
+ 	The import mechanisms allow 
 	
 	
 	\section{Conclusion}
